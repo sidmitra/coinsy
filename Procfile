@@ -1,0 +1,1 @@
+web: gunicorn coinsy.wsgi 8000
