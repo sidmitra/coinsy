@@ -12,7 +12,14 @@ django-extensions = "*"
 gunicorn = "*"
 python-decouple = "*"
 dj-database-url = "*"
+celery = {extras = ["redis"]}
+celery-redbeat = "*"
+whitenoise = "*"
+"psycopg2" = "*"
 
 
 [dev-packages]
 
+"fabric3" = "*"
+ipdb = "*"
+ipython = "*"
