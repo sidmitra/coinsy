@@ -4,8 +4,6 @@ from __future__ import absolute_import, unicode_literals
 import os
 
 import celery
-import raven
-from raven.contrib.celery import register_logger_signal, register_signal
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "coinsy.settings")
 
@@ -13,6 +11,9 @@ from django.conf import settings  # noqa
 
 
 if settings.RAVEN_DSN:
+    import raven
+    from raven.contrib.celery import register_logger_signal, register_signal
+
     class CeleryWithSentry(celery.Celery):
         def on_configure(self):
             client = raven.Client(settings.RAVEN_DSN)

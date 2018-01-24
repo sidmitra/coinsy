@@ -4,6 +4,7 @@ Canonical settings for the project.
 import os
 import sys
 
+from celery.schedules import crontab
 from decouple import config
 from dj_database_url import parse as db_url
 
@@ -18,7 +19,6 @@ ENV = config("ENV")
 ENV_COLOR = config("ENV_COLOR", default="#808080")
 ALLOWED_HOSTS = ["*"]  # TODO: Change to allowed domains
 
-
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -27,7 +27,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     "django_extensions",
     # "gunicorn",
 ]
@@ -50,7 +49,6 @@ DATABASES = {"default": config("DATABASE_URL", cast=db_url)}
 DATABASES["default"]["ATOMIC_REQUESTS"] = True
 DATABASES["default"]["CONN_MAX_AGE"] = 60
 
-
 # Templates
 TEMPLATES = [
     {
@@ -68,24 +66,26 @@ TEMPLATES = [
     },
 ]
 
-
 # Auth
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
@@ -94,8 +94,30 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
-
+# Static files
 STATIC_URL = "/static/"
+
+# celery
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_BROKER_URL = config("REDIS_URL")
+CELERY_REDIS_MAX_CONNECTIONS = 20
+CELERY_RESULT_BACKEND = config("REDIS_URL")
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_RESULT_EXPIRES = 60 * 60  # seconds
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_WORKER_CONCURRENCY = 4
+
+CELERY_BEAT_SCHEDULER = "redbeat.RedBeatScheduler"
+CELERY_BEAT_SCHEDULE = {
+    "celery.backend_cleanup": {
+        "task": "celery.backend_cleanup",
+        "schedule": crontab(minute="0", hour="*"),  # every hour
+        "options": {
+            "expires": 30 * 60  # seconds
+        }
+    },
+}
+
+# sentry/raven
+RAVEN_DSN = None
