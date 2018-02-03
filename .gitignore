@@ -3,3 +3,4 @@ staticfiles
 .env
 *.sqlite3
 *.env
+static/
